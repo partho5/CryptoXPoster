@@ -56,7 +56,7 @@ class CointelegraphScraper:
     @staticmethod
     def clean_text(text: str) -> str:
         """
-        Convert non-ASCII characters to closest ASCII equivalent
+        Remove non-ASCII characters from text
 
         Args:
             text: Input text to clean
@@ -64,9 +64,7 @@ class CointelegraphScraper:
         Returns:
             Cleaned text
         """
-        normalized = unicodedata.normalize('NFKD', text)
-        return normalized.encode('ascii', 'ignore').decode('ascii')
-
+        return re.sub(r'[^\x00-\x7F]+', '', text)
 
     def _make_request(self) -> str:
         """
@@ -100,10 +98,6 @@ class CointelegraphScraper:
             title_tag = article.find('span', {'data-testid': 'post-card-title'})
             summary_tag = article.find('p', {'data-testid': 'post-card-preview-text'})
             link_tag = article.find('a', {'data-testid': 'post-cad__link'})
-
-            print(title_tag)
-            print(link_tag)
-            print(summary_tag)
 
             # More specific image finding
             img_tag = article.select_one('img.lazy-image__img')
