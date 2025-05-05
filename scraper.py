@@ -8,6 +8,7 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 
 import requests
+import unicodedata
 from bs4 import BeautifulSoup
 
 # Configure logging
@@ -50,10 +51,12 @@ class CointelegraphScraper:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36'
         }
 
+    import unicodedata
+
     @staticmethod
     def clean_text(text: str) -> str:
         """
-        Remove non-ASCII characters from text
+        Convert non-ASCII characters to closest ASCII equivalent
 
         Args:
             text: Input text to clean
@@ -61,7 +64,9 @@ class CointelegraphScraper:
         Returns:
             Cleaned text
         """
-        return re.sub(r'[^\x00-\x7F]+', '', text)
+        normalized = unicodedata.normalize('NFKD', text)
+        return normalized.encode('ascii', 'ignore').decode('ascii')
+
 
     def _make_request(self) -> str:
         """
@@ -109,6 +114,7 @@ class CointelegraphScraper:
                 return None
 
             title = title_tag.get_text(strip=True)
+            title = self.clean_text(title)
             summary = summary_tag.get_text(strip=True) if summary_tag else ''
             summary = self.clean_text(summary)
             href = link_tag['href'] if link_tag and link_tag.has_attr('href') else ''
