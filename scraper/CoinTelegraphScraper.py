@@ -2,6 +2,7 @@
 Web scraper module for collecting news from Cointelegraph.
 """
 import logging
+import os
 import re
 import json
 from datetime import datetime
@@ -10,6 +11,8 @@ from typing import List, Dict, Any, Optional
 import requests
 import unicodedata
 from bs4 import BeautifulSoup
+
+from file_handler import prepend_data
 
 # Configure logging
 logging.basicConfig(
@@ -161,27 +164,58 @@ class CointelegraphScraper:
             raise ParsingError(f"Failed to parse content: {str(e)}") from e
 
 
-def save_articles_to_json(articles: List[Dict[str, Any]], file_path: str) -> None:
+def save_news_to_json(news_items: List[Dict[str, Any]], file_path: str) -> None:
     """
-    Save articles to a JSON file
+    Prepend news items to an existing JSON file
 
     Args:
-        articles: List of article data to save
-        file_path: Path to save the JSON file
+        news_items: List of new news data to prepend
+        file_path: Path to the JSON file
 
     Raises:
-        IOError: If file cannot be written
+        IOError: If file cannot be read or written
     """
-    try:
-        with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump(articles, f, indent=2)
-        logger.info(f"Successfully saved {len(articles)} articles to {file_path}")
-    except IOError as e:
-        logger.error(f"Failed to save articles to {file_path}: {str(e)}")
-        raise IOError(f"Failed to save articles: {str(e)}") from e
+    prepend_data(file_path, news_items)
+
+    # try:
+    #     # Get absolute path to the parent of the current script directory
+    #     base_dir = os.path.dirname(os.path.abspath(__file__))
+    #     parent_dir = os.path.abspath(os.path.join(base_dir, os.pardir))
+    #     full_file_path = os.path.join(parent_dir, file_path)
+    #
+    #     # Load existing data if file exists
+    #     existing_news = []
+    #     if os.path.exists(full_file_path):
+    #         try:
+    #             with open(full_file_path, 'r', encoding='utf-8') as f:
+    #                 existing_news = json.load(f)
+    #                 # Ensure it's a list
+    #                 if not isinstance(existing_news, list):
+    #                     existing_news = []
+    #             logger.info(f"Loaded {len(existing_news)} existing news items from {full_file_path}")
+    #         except (json.JSONDecodeError, IOError) as e:
+    #             logger.warning(
+    #                 f"Could not load existing data from {full_file_path}: {str(e)}. Starting with empty list.")
+    #             existing_news = []
+    #     else:
+    #         logger.info(f"File {full_file_path} does not exist. Creating new file.")
+    #
+    #     # Prepend new news items to existing ones (new items first)
+    #     combined_news = news_items + existing_news
+    #
+    #     # Write combined data back to file
+    #     with open(full_file_path, 'w', encoding='utf-8') as f:
+    #         json.dump(combined_news, f, indent=2, ensure_ascii=False)
+    #
+    #     logger.info(f"Successfully prepended {len(news_items)} new news items to {len(existing_news)} existing items")
+    #     logger.info(f"Total news items in file: {len(combined_news)}")
+    #
+    # except IOError as e:
+    #     logger.error(f"Failed to save news to {full_file_path}: {str(e)}")
+    #     raise IOError(f"Failed to save news: {str(e)}") from e
 
 
-def scrape_and_save(output_file: str = 'news_data.json') -> List[Dict[str, Any]]:
+def scrape_cointelegraph_and_save(output_file: str = 'news_data.json') -> List[Dict[str, Any]]:
     """
     Scrape articles and save them to a file
 
@@ -193,18 +227,19 @@ def scrape_and_save(output_file: str = 'news_data.json') -> List[Dict[str, Any]]
     """
     scraper = CointelegraphScraper()
     try:
-        articles = scraper.scrape()
-        save_articles_to_json(articles, output_file)
-        return articles
+        news = scraper.scrape()
+        #print(news)
+        save_news_to_json(news, output_file)
+        return news
     except NewsScraperError as e:
         logger.error(f"Scraping failed: {str(e)}")
         return []
 
-
-if __name__ == "__main__":
-    try:
-        results = scrape_and_save()
-        print(f"Scraped {len(results)} articles")
-    except Exception as e:
-        logger.critical(f"Unhandled exception: {str(e)}")
-        raise
+#
+# if __name__ == "__main__":
+#     try:
+#         results = scrape_cointelegraph_and_save()
+#         print(f"Scraped {len(results)} articles")
+#     except Exception as e:
+#         logger.critical(f"Unhandled exception: {str(e)}")
+#         raise

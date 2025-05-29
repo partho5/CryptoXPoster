@@ -7,8 +7,8 @@ import logging
 from typing import Dict, Any
 from dotenv import load_dotenv
 
-from scraper import scrape_and_save
 from data_manager import process_next_item, read_json_file
+from scraper.CoinTelegraphScraper import scrape_cointelegraph_and_save
 from social_poster import post_to_x
 from api_server import start_server
 
@@ -35,7 +35,7 @@ def run_scraper() -> Dict[str, Any]:
     """
     try:
         logger.info("Starting scraping operation")
-        articles = scrape_and_save(DATA_FILE)
+        articles = scrape_cointelegraph_and_save(DATA_FILE)
 
         return {
             "status": "success",

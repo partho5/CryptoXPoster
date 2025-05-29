@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
-from scraper import scrape_and_save
+
 from data_manager import process_next_item, read_json_file, DataManagerError
 
 # Load environment variables

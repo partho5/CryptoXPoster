@@ -8,11 +8,14 @@ import json
 import logging
 from urllib.parse import parse_qs
 
+from file_handler import get_file_path
+from scraper.CoinTelegraphScraper import scrape_cointelegraph_and_save
+from scraper.YahooScraper import scrape_and_save_yahoo_trending_table
+
 # Add current directory to path
 sys.path.insert(0, os.path.dirname(__file__))
 
 # Import local modules
-from scraper import scrape_and_save
 from data_manager import process_next_item, read_json_file
 from social_poster import post_to_x
 from dotenv import load_dotenv
@@ -82,13 +85,15 @@ def application(environ, start_response):
 
         elif path == '/scrape' and method == 'GET':
             # Trigger scraping
-            articles = scrape_and_save(DATA_FILE)
+            file_path = get_file_path()
+            news = scrape_cointelegraph_and_save(file_path)
+            scrape_and_save_yahoo_trending_table(file_path)
 
             start_response('200 OK', [('Content-Type', 'application/json')])
             return [json.dumps({
                 'status': 'success',
                 'message': 'Scraping completed successfully',
-                'count': len(articles)
+                'count': len(news)
             }).encode()]
 
         elif path == '/articles' and method == 'GET':

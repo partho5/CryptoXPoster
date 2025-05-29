@@ -7,6 +7,8 @@ from typing import Dict, Any, Optional
 
 import tweepy
 from dotenv import load_dotenv
+from config import is_premium_user
+from utils.x_post import max_post_length
 
 # Load environment variables
 load_dotenv()
@@ -51,38 +53,56 @@ def format_news_for_twitter(article: Dict[str, Any]) -> str:
         if not article.get('title'):
             raise InvalidContentError("Article must contain a title")
 
-        # Create a short tweet with title and link
         title = article['title']
-        link = article.get('link', '')
+        summary = article.get('summary', '')
+        link = article.get('link', '').strip()
 
-        # Ensure we don't exceed Twitter's character limit (280)
-        max_title_length = 200 if link else 270
-        if len(title) > max_title_length:
-            title = title[:max_title_length - 3] + "..."
+        # Set character limit based on user type
+        max_limit = max_post_length()
 
-        tweet = f"{title}"
+        tweet_parts = [title]
+
+        # Add summary only if premium user and enough space
+        if is_premium_user and summary:
+            combined_text = f"{title}\n\n{summary}"
+            if len(combined_text) <= max_limit:
+                tweet_parts = [combined_text]
+            else:
+                summary_space = max_limit - len(title) - 2  # For spacing
+                if summary_space > 0:
+                    short_summary = summary[:summary_space - 3] + "..."
+                    tweet_parts = [title, short_summary]
+
+        # Append link if available and space permits
         if link:
-            tweet += f"\n\n{link}"
+            link_space = max_limit - sum(len(p) for p in tweet_parts) - 2  # For spacing
+            if link_space > 0:
+                tweet_parts.append(link)
+
+        tweet = "\n\n".join(tweet_parts)
 
         # Add hashtags based on content
         crypto_terms = ['bitcoin', 'ethereum', 'crypto', 'blockchain', 'token', 'nft']
         matched = False
 
         for term in crypto_terms:
-            if term.lower() in title.lower() and len(tweet) < 260:
+            if term.lower() in tweet.lower() and len(tweet) + len(term) + 2 <= max_limit:
                 tweet += f" #{term.capitalize()}"
                 matched = True
+                break
 
-        if not matched and len(tweet) < 260:
-            tweet += " #CryptoNews #cryptocurrencies"  # default hashtags
+        if not matched and len(tweet) + 22 <= max_limit:  # 22 for fallback hashtags
+            tweet += " #CryptoNews #cryptocurrencies"
 
         return tweet
+
     except KeyError as e:
         logger.error(f"Missing required key in article: {str(e)}")
         raise InvalidContentError(f"Missing required key in article: {str(e)}") from e
     except Exception as e:
         logger.error(f"Failed to format article for Twitter: {str(e)}")
         raise InvalidContentError(f"Failed to format article: {str(e)}") from e
+
 
 
 def post_to_x(article: Dict[str, Any]) -> Dict[str, Any]:
@@ -115,7 +135,7 @@ def post_to_x(article: Dict[str, Any]) -> Dict[str, Any]:
             }
 
         # Format the article for Twitter
-        tweet_text = format_news_for_twitter(article)
+        tweet_text = format_news_for_twitter(article, is_premium_user=is_premium_user)
 
         # Initialize Twitter client
         client = tweepy.Client(
