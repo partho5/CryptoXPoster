@@ -136,8 +136,8 @@ def post_to_x(article: Dict[str, Any]) -> Dict[str, Any]:
 
         # Format the article for Twitter
         tweet_text = format_news_for_twitter(article)
-        print(tweet_text)
-        return
+        #print(tweet_text)
+        #return
 
         # Initialize Twitter client
         client = tweepy.Client(
