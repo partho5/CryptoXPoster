@@ -88,7 +88,7 @@ symbols = top_10_active_cryptos
 
 import json
 
-def cnbc_quotes_scrape_save(symbols):
+def cnbc_quotes_scrape_save(file_path):
     """
     Scrapes CNBC quotes for a list of symbols, converts the result to a news format,
     and prepends it to the data file.
@@ -109,10 +109,10 @@ def cnbc_quotes_scrape_save(symbols):
             news_format = [news_item]
 
             # Prepend to data file
-            prepend_data(get_file_path(), news_format)
+            prepend_data(file_path, news_format)
 
             # break  # stop after first successful scrape
         except Exception as e:
             print(f"Failed to scrape {symbol}: {e}")
 
-cnbc_quotes_scrape_save(symbols)
+# cnbc_quotes_scrape_save()

@@ -11,6 +11,7 @@ from urllib.parse import parse_qs
 from file_handler import get_file_path
 from scraper.CoinTelegraphScraper import scrape_cointelegraph_and_save
 from scraper.YahooScraper import scrape_and_save_yahoo_trending_table
+from scraper.cnbc_scraper import cnbc_quotes_scrape_save
 
 # Add current directory to path
 sys.path.insert(0, os.path.dirname(__file__))
@@ -88,6 +89,7 @@ def application(environ, start_response):
             file_path = get_file_path()
             news = scrape_cointelegraph_and_save(file_path)
             scrape_and_save_yahoo_trending_table(file_path)
+            cnbc_quotes_scrape_save(file_path)
 
             start_response('200 OK', [('Content-Type', 'application/json')])
             return [json.dumps({

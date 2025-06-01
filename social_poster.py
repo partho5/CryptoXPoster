@@ -87,12 +87,12 @@ def format_news_for_twitter(article: Dict[str, Any]) -> str:
 
         for term in crypto_terms:
             if term.lower() in tweet.lower() and len(tweet) + len(term) + 2 <= max_limit:
-                tweet += f" #{term.capitalize()}"
+                tweet += f"\n#{term.capitalize()}"
                 matched = True
                 break
 
         if not matched and len(tweet) + 22 <= max_limit:  # 22 for fallback hashtags
-            tweet += " #CryptoNews #cryptocurrencies"
+            tweet += "\n#CryptoNews #cryptocurrencies"
 
         return tweet
 
@@ -135,7 +135,9 @@ def post_to_x(article: Dict[str, Any]) -> Dict[str, Any]:
             }
 
         # Format the article for Twitter
-        tweet_text = format_news_for_twitter(article, is_premium_user=is_premium_user)
+        tweet_text = format_news_for_twitter(article)
+        print(tweet_text)
+        return
 
         # Initialize Twitter client
         client = tweepy.Client(
