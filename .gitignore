@@ -20,6 +20,8 @@ env/
 # Logs
 *.log
 
+news_data.json
+
 # Test & coverage files
 .coverage
 htmlcov/

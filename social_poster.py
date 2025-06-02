@@ -104,7 +104,6 @@ def format_news_for_twitter(article: Dict[str, Any]) -> str:
         raise InvalidContentError(f"Failed to format article: {str(e)}") from e
 
 
-
 def post_to_x(article: Dict[str, Any]) -> Dict[str, Any]:
     """
     Post an article to Twitter/X
@@ -136,8 +135,8 @@ def post_to_x(article: Dict[str, Any]) -> Dict[str, Any]:
 
         # Format the article for Twitter
         tweet_text = format_news_for_twitter(article)
-        #print(tweet_text)
-        #return
+        # print(tweet_text)
+        # return
 
         # Initialize Twitter client
         client = tweepy.Client(
@@ -161,15 +160,55 @@ def post_to_x(article: Dict[str, Any]) -> Dict[str, Any]:
             "article": article
         }
     except tweepy.TweepyException as e:
-        logger.error(f"Twitter API error: {str(e)}")
-        raise TwitterApiError(f"Twitter API error: {str(e)}") from e
+        # Enhanced error handling for rate limiting
+        error_msg = str(e)
+
+        # Check if this is a 429 rate limit error
+        if "429" in error_msg or "Too Many Requests" in error_msg:
+            # Try to extract rate limit information from the exception
+            rate_limit_info = {}
+
+            # Tweepy sometimes includes response headers in the exception
+            if hasattr(e, 'response') and e.response is not None:
+                headers = e.response.headers
+                rate_limit_info = {
+                    'x-rate-limit-limit': headers.get('x-rate-limit-limit', 'Not available'),
+                    'x-rate-limit-remaining': headers.get('x-rate-limit-remaining', 'Not available'),
+                    'x-rate-limit-reset': headers.get('x-rate-limit-reset', 'Not available')
+                }
+
+                # Convert reset timestamp to readable format if available
+                if rate_limit_info['x-rate-limit-reset'] != 'Not available':
+                    try:
+                        import datetime
+                        reset_timestamp = int(rate_limit_info['x-rate-limit-reset'])
+                        reset_time = datetime.datetime.fromtimestamp(reset_timestamp)
+                        rate_limit_info['reset_time_readable'] = reset_time.strftime('%Y-%m-%d %H:%M:%S')
+                    except (ValueError, TypeError):
+                        rate_limit_info['reset_time_readable'] = 'Could not parse'
+
+            # Log detailed rate limit information
+            logger.error(f"Twitter API Rate Limit Hit (429 Error):")
+            logger.error(f"  Original Error: {error_msg}")
+            for key, value in rate_limit_info.items():
+                logger.error(f"  {key}: {value}")
+
+            # Also print to console for immediate visibility
+            print(f"RATE LIMIT ERROR - {datetime.datetime.now()}")
+            print(f"Error: {error_msg}")
+            for key, value in rate_limit_info.items():
+                print(f"{key}: {value}")
+            print("-" * 50)
+        else:
+            logger.error(f"Twitter API error: {error_msg}")
+
+        raise TwitterApiError(f"Twitter API error: {error_msg}") from e
     except InvalidContentError:
         # Re-raise if it's already an InvalidContentError
         raise
     except Exception as e:
         logger.error(f"Unexpected error posting to Twitter: {str(e)}")
         raise SocialPostError(f"Failed to post to Twitter: {str(e)}") from e
-
 
 def test_twitter_connection() -> Dict[str, Any]:
     """
