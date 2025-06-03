@@ -113,6 +113,10 @@ The application implements comprehensive error handling throughout the codebase:
 - Input validation is performed to prevent security issues
 - CORS middleware is configured to control access
 
+
+>Rate Limit docs:
+https://docs.x.com/x-api/fundamentals/rate-limits
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
