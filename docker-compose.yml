@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  crypto-news-scraper:
+    build: .
+    container_name: crypto-news-scraper
+    ports:
+      - "8080:8080"
+    environment:
+      - AUTH_CODE=59bd0119d5fec5ffa3622e196ab5fd10
+      - HOST=0.0.0.0
+      - PORT=8080
+      - DATA_FILE=news_data.json
+      - NODE_ENV=production
+      # Add your API keys here
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - TW_CONSUMER_KEY=${TW_CONSUMER_KEY}
+      - TW_CONSUMER_SECRET=${TW_CONSUMER_SECRET}
+      - TW_ACCESS_TOKEN=${TW_ACCESS_TOKEN}
+      - TW_ACCESS_TOKEN_SECRET=${TW_ACCESS_TOKEN_SECRET}
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - crypto-network
+
+networks:
+  crypto-network:
+    driver: bridge
+
+volumes:
+  data: 

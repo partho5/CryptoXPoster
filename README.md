@@ -60,15 +60,31 @@ CryptoNewsPostToX/
 
 ## Usage
 
-### Server
+### 🐳 Docker Deployment (Recommended)
 
-The application uses `passenger_wsgi.py` which runs on port 8080 and includes all scraping sources:
+The easiest way to deploy is using Docker:
+
+```bash
+# 1. Copy environment template and add your API keys
+cp env.example .env
+nano .env  # Add your OpenAI and Twitter API keys
+
+# 2. Deploy with one command
+chmod +x deploy.sh
+./deploy.sh
+```
+
+**That's it!** The server will be running at `http://localhost:8080`
+
+### 🖥️ Local Development
+
+For local development, you can run the server directly:
 
 ```bash
 # Start the server directly
 python passenger_wsgi.py
 
-# Or use the automated scheduler (recommended for production)
+# Or use the automated scheduler
 python scheduler_in_local_pc.py
 ```
 
@@ -147,14 +163,41 @@ curl "http://localhost:8080/scrape?auth_code=59bd0119d5fec5ffa3622e196ab5fd10"
 
 ## Configuration
 
+### Environment Variables
+
 Configure the application by setting environment variables in your `.env` file:
 
+**Required API Keys:**
+- `OPENAI_API_KEY` - OpenAI API key for AI response generation
+- `TW_CONSUMER_KEY` - Twitter API consumer key
+- `TW_CONSUMER_SECRET` - Twitter API consumer secret  
+- `TW_ACCESS_TOKEN` - Twitter API access token
+- `TW_ACCESS_TOKEN_SECRET` - Twitter API access token secret
+
+**Application Settings:**
 - `AUTH_CODE` - Authentication code for API access (default: 59bd0119d5fec5ffa3622e196ab5fd10)
-- `HOST` - Host for the API server (default: 127.0.0.1)
+- `HOST` - Host for the API server (default: 0.0.0.0 for Docker, 127.0.0.1 for local)
 - `PORT` - Port for the API server (default: 8080)
 - `DATA_FILE` - Path to the JSON data file (default: news_data.json)
-- `TW_*` - Twitter API credentials
-- `OPENAI_API_KEY` - OpenAI API key for AI response generation
+
+### Docker Management
+
+```bash
+# Start the application
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop the application
+docker-compose down
+
+# Rebuild and restart
+docker-compose up -d --build
+
+# Check status
+docker-compose ps
+```
 
 ## Error Handling
 
