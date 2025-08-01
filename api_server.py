@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 
 
 from data_manager import process_next_item, read_json_file, DataManagerError
+from scraper.CoinTelegraphScraper import scrape_cointelegraph_and_save
 
 # Load environment variables
 load_dotenv()
@@ -28,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 # Get configuration from environment variables
 DATA_FILE = os.getenv('DATA_FILE', 'news_data.json')
-AUTH_CODE = os.getenv('AUTH_CODE', 'default_auth_code')  # NEVER use this default in production!
+AUTH_CODE = os.getenv('AUTH_CODE', '59bd0119d5fec5ffa3622e196ab5fd10')  # NEVER use this default in production!
 HOST = os.getenv('HOST', '127.0.0.1')
 PORT = int(os.getenv('PORT', '8000'))
 
@@ -102,7 +103,26 @@ async def trigger_scrape(auth_code: str = Query(...)):
         ScrapingResponse with status and count of scraped articles
     """
     try:
-        articles = scrape_and_save(DATA_FILE)
+        logger.info(f"Starting scraping operation for file: {DATA_FILE}")
+        
+        # Check current file content before scraping
+        try:
+            current_articles = read_json_file(DATA_FILE)
+            logger.info(f"Current articles in file: {len(current_articles)}")
+        except Exception as e:
+            logger.warning(f"Could not read current file: {str(e)}")
+            current_articles = []
+        
+        articles = scrape_cointelegraph_and_save(DATA_FILE)
+        logger.info(f"Scraped {len(articles)} new articles")
+
+        # Check file content after scraping
+        try:
+            updated_articles = read_json_file(DATA_FILE)
+            logger.info(f"Total articles in file after scraping: {len(updated_articles)}")
+            logger.info(f"New articles added: {len(updated_articles) - len(current_articles)}")
+        except Exception as e:
+            logger.warning(f"Could not read updated file: {str(e)}")
 
         return {
             "status": "success",

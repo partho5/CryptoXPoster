@@ -8,6 +8,7 @@ import json
 import logging
 from urllib.parse import parse_qs
 
+from ai.response_generator import generate_response
 from file_handler import get_file_path
 from scraper.CoinTelegraphScraper import scrape_cointelegraph_and_save
 from scraper.YahooScraper import scrape_and_save_yahoo_trending_table

@@ -265,9 +265,9 @@ def scrape_and_save_yahoo_trending_table(file_path):
         data = YahooFinanceCryptoScraper.get_data()
 
         if data:
-            # Transform new data
+            # Transform new data (limit to 3 articles)
             new_entries = []
-            for entry in data:
+            for entry in data[:3]:  # Limit to 3 articles
                 transformed_entry = transform_raw_data_to_news_post(entry)
                 new_entries.append(transformed_entry)
                 print(f"Added: {transformed_entry['title']}")
@@ -276,7 +276,7 @@ def scrape_and_save_yahoo_trending_table(file_path):
             # Assuming your existing file path - adjust as needed
             prepend_data(file_path, new_entries, resolve_path=False)
 
-            print(f"Successfully prepended {len(new_entries)} new entries")
+            print(f"Successfully prepended {len(new_entries)} new entries (limited to 3)")
         else:
             print("No data retrieved from YahooFinanceCryptoScraper")
 

@@ -74,14 +74,14 @@ symbols = ['XDC', 'HBAR', 'BTC.BS=', 'BTC', 'BTC.CB=', 'BTC.GM=', 'BTC.BF=',
 top_10_active_cryptos = [
     "BTC",  # Bitcoin
     "ETH",  # Ethereum
-    "BNB",  # BNB
+    # "BNB",  # BNB
     "SOL",  # Solana (Binance-Peg SOL)
     "LTC",  # Litecoin
-    "UNI",  # Uniswap
-    "DOT",  # Polkadot
-    "ADA",  # Cardano
-    "SHIB", # Shiba Inu (interpreted from Dogecoin-like pricing)
-    "XRP"   # XRP
+    # "UNI",  # Uniswap
+    # "DOT",  # Polkadot
+    # "ADA",  # Cardano
+    # "SHIB", # Shiba Inu (interpreted from Dogecoin-like pricing)
+    # "XRP"   # XRP
 ]
 
 symbols = top_10_active_cryptos
@@ -93,7 +93,13 @@ def cnbc_quotes_scrape_save(file_path):
     Scrapes CNBC quotes for a list of symbols, converts the result to a news format,
     and prepends it to the data file.
     """
+    successful_scrapes = 0
+    max_scrapes = 3  # Limit to 3 articles
+    
     for symbol in symbols:
+        if successful_scrapes >= max_scrapes:
+            break
+            
         scraper = CNBCQuoteScraper(symbol + ".CM=")  # .CM= is required for CNBC quote URLs
         try:
             data = scraper.scrape()
@@ -110,9 +116,13 @@ def cnbc_quotes_scrape_save(file_path):
 
             # Prepend to data file
             prepend_data(file_path, news_format)
+            
+            successful_scrapes += 1
+            print(f"Successfully scraped {symbol} ({successful_scrapes}/{max_scrapes})")
 
-            # break  # stop after first successful scrape
         except Exception as e:
             print(f"Failed to scrape {symbol}: {e}")
+    
+    print(f"Completed CNBC scraping: {successful_scrapes} articles added")
 
 # cnbc_quotes_scrape_save()

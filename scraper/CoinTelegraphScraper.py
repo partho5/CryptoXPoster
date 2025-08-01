@@ -40,7 +40,7 @@ class ParsingError(NewsScraperError):
 class CointelegraphScraper:
     """Scraper for Cointelegraph news website"""
 
-    def __init__(self, base_url: str = 'https://cointelegraph.com/', max_articles: int = 5):
+    def __init__(self, base_url: str = 'https://cointelegraph.com/', max_articles: int = 3):
         """
         Initialize the scraper with configuration
 

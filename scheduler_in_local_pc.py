@@ -20,8 +20,6 @@ def call_scrape():
 
 def call_process_loop():
     while True:
-        time.sleep(POSTING_DELAY_MINUTES * 60)  # some time gap between posting
-
         current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         print(f"[{current_time}] Calling /process...")
 
@@ -45,6 +43,8 @@ def call_process_loop():
             else:
                 print(f"[{current_time}] ⚠️  Process call returned status {response.status_code}")
 
+            time.sleep(POSTING_DELAY_MINUTES * 60)  # some time gap between posting
+
         except requests.exceptions.RequestException as e:
             current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             print(f"[{current_time}] ❌ Request Error calling /process: {e}")
@@ -60,8 +60,12 @@ def start_server_and_tasks():
     server_process = subprocess.Popen(["python", "passenger_wsgi.py"])
 
     # Start task threads
-    threading.Thread(target=call_scrape, daemon=True).start()
+    scrape_thread = threading.Thread(target=call_scrape)
+    scrape_thread.start()
+    scrape_thread.join()  # Wait until scrape is finished
+
     threading.Thread(target=call_process_loop, daemon=True).start()
+
 
     # Keep script alive as long as server runs
     try:

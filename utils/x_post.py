@@ -38,13 +38,13 @@ Generate a JSON object representing a single financial news post suitable for X 
 
 - Make the summary more insightful and detailed, not just reporting numbers. Add context or market interpretation when possible.
 - Use clear line breaks between paragraphs (use \\n\\n).
-- If the provided URL is for live tracking (e.g., real-time quotes), explicitly mention that in the summary.
+- remove all kinds of URL.
 - Add a line break before and after the link to make the post visually clean.
 
 Structure the JSON output exactly as:
 {{
   "title": "[Brief headline including symbol or name, and price movement]",
-  "summary": "[Natural language multi-paragraph summary with insights, line breaks, and spacing before/after link]",
+  "summary": "[Natural language multi-paragraph summary with insights, line breaks]",
   "link": "[empty string]",
   "image_url": null,
   "timestamp": "{timestamp}"
@@ -56,6 +56,7 @@ This content will be posted to X using premium formatting features.
 
     # Call OpenAI API wrapper
     response = generate_response(prompt)
+    # print(response)
 
     # Return JSON string
     return response

@@ -53,6 +53,12 @@ def prepend_data(existing_path: str, new_data: List[Dict[str, Any]],
         # Prepend new data to existing data (new items first)
         combined_data = new_data + existing_data
 
+        # Limit to maximum 10 articles
+        max_articles = 10
+        if len(combined_data) > max_articles:
+            combined_data = combined_data[:max_articles]
+            logger.info(f"Limited file to {max_articles} articles (removed oldest articles)")
+
         # Create directory if it doesn't exist
         os.makedirs(os.path.dirname(full_file_path), exist_ok=True)
 
@@ -61,7 +67,7 @@ def prepend_data(existing_path: str, new_data: List[Dict[str, Any]],
             json.dump(combined_data, f, indent=2, ensure_ascii=False)
 
         logger.info(f"Successfully prepended {len(new_data)} new items to {len(existing_data)} existing items")
-        logger.info(f"Total items in file: {len(combined_data)}")
+        logger.info(f"Total items in file: {len(combined_data)} (max: {max_articles})")
 
     except IOError as e:
         logger.error(f"Failed to save data to {full_file_path}: {str(e)}")
