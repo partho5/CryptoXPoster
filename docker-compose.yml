@@ -15,4 +15,4 @@ services:
 
 networks:
   default:
-    name: crypto-network 
+    name: crypto-network

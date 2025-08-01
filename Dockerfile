@@ -17,4 +17,4 @@ USER appuser
 
 EXPOSE 8080
 
-CMD ["python3", "passenger_wsgi.py"] 
+CMD ["python3", "passenger_wsgi.py"]

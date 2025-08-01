@@ -96,28 +96,15 @@ The scheduler automatically:
 
 **✅ This is the working server that handles all functionality properly.**
 
-### Command Line Interface
 
-The application provides a simple command line interface via `main.py`:
-
-```bash
-# Scrape news articles
-python main.py scrape
-
-# Process and post the next article
-python main.py process
-
-# Check status of the data file
-python main.py status
-```
 
 ### API Endpoints
 
 The server provides the following endpoints:
 
-- `GET /` - Status check
-- `GET /status` - Detailed status information
-- `GET /scrape?auth_code=YOUR_AUTH_CODE` - Trigger scraping operation
+- `GET /` - Status check (returns plain text)
+- `GET /status` - Detailed status information (returns JSON)
+- `GET /scrape?auth_code=YOUR_AUTH_CODE` - Trigger scraping operation from all sources
 - `GET /articles?auth_code=YOUR_AUTH_CODE` - Get all scraped articles
 - `GET /process?auth_code=YOUR_AUTH_CODE` - Process and post the next article
 
@@ -140,7 +127,17 @@ The default authentication code is: `59bd0119d5fec5ffa3622e196ab5fd10`
 
 Example usage:
 ```bash
+# Check server status
+curl "http://localhost:8080/status"
+
+# Trigger scraping
 curl "http://localhost:8080/scrape?auth_code=59bd0119d5fec5ffa3622e196ab5fd10"
+
+# Get all articles
+curl "http://localhost:8080/articles?auth_code=59bd0119d5fec5ffa3622e196ab5fd10"
+
+# Process next article
+curl "http://localhost:8080/process?auth_code=59bd0119d5fec5ffa3622e196ab5fd10"
 ```
 
 ## Troubleshooting
