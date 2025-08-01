@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   crypto-news-scraper:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.simple
     container_name: crypto-news-scraper
     ports:
       - "8080:8080"

@@ -199,6 +199,8 @@ docker-compose up -d --build
 docker-compose ps
 ```
 
+**Note:** The Docker setup runs the Python application directly without PM2 for simplicity and reliability.
+
 ## Error Handling
 
 The application implements comprehensive error handling throughout the codebase:
